@@ -2,17 +2,23 @@
 #include <vector>
 
 class Solution {
-public:
+ public:
   std::vector<std::vector<std::string> > solveNQueens(int n) {
     std::vector<std::vector<std::string> > res;
     std::vector<std::string> nQueens(n, std::string(n, '.'));
     solveNQueens(res, nQueens, 0, n);
     return res;
   }
-private:
+  Solution() {
+    found = false;
+  }
+ private:
+  bool found;
   void solveNQueens(std::vector<std::vector<std::string> > &res, std::vector<std::string> &nQueens, int row, int &n) {
+    if (found) return;
     if (row == n) {
       res.push_back(nQueens);
+      found = true;
       return;
     }
     for (int col = 0; col != n; ++col)

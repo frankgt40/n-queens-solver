@@ -1,0 +1,48 @@
+\begin{thebibliography}{10}
+
+\bibitem{noauthor_a000170_nodate}
+A000170 - {OEIS}.
+
+\bibitem{noauthor_a002562_nodate}
+A002562 - {OEIS}.
+
+\bibitem{noauthor_knuths_2016}
+Knuth's {Algorithm} {X}, Sept. 2016.
+\newblock Page Version ID: 738699208.
+
+\bibitem{noauthor_eight_2017}
+Eight queens puzzle, Nov. 2017.
+\newblock Page Version ID: 811616720.
+
+\bibitem{noauthor_exact_2017}
+Exact cover, Aug. 2017.
+\newblock Page Version ID: 796864531.
+
+\bibitem{ball_mathematical_1914}
+{\sc Ball, W. W.~R.}
+\newblock {\em Mathematical recreations and essays}.
+\newblock MacMillan, 1914.
+
+\bibitem{bernhardsson_explicit_1991}
+{\sc Bernhardsson, B.}
+\newblock Explicit {Solutions} to the {N}-queens {Problem} for {All} {N}.
+\newblock {\em SIGART Bull. 2}, 2 (Feb. 1991), 7--.
+
+\bibitem{knuth_dancing_2000}
+{\sc Knuth, D.~E.}
+\newblock Dancing links.
+\newblock {\em arXiv:cs/0011047\/} (Nov. 2000).
+\newblock arXiv: cs/0011047.
+
+\bibitem{russell_modern_1995}
+{\sc Russell, S., Norvig, P., and Intelligence, A.}
+\newblock A modern approach.
+\newblock {\em Artificial Intelligence. Prentice-Hall, Egnlewood Cliffs 25\/}
+  (1995), 27.
+
+\bibitem{sosic_polynomial_1990}
+{\sc Sosic, R., and Gu, J.}
+\newblock A {Polynomial} {Time} {Algorithm} for the {N}-{Queens} {Problem}.
+\newblock {\em SIGART Bull. 1}, 3 (Oct. 1990), 7--11.
+
+\end{thebibliography}
