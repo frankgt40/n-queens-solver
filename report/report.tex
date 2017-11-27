@@ -185,7 +185,7 @@ Exact cover problem is defined like this: given a set $X$, and a collection $S$ 
   \centering
   \begin{subfigure}[t]{0.5\textwidth}
     \includegraphics[height=1.5in]{figure/ecp_1.JPG}
-    \caption{The matrix representation of the example of exact cover problem.}
+    \caption{One matrix representation of an example of the exact cover problem.}
     \label{fig:ecp_1}
   \end{subfigure}%
   ~  
@@ -224,7 +224,7 @@ The good way to solve exact cover problem  is to Algorithm X. It wil first count
 If we think about the array we mentioned in Section~\ref{sec:csp} again, we can notice that each element of the array can only have one $1$. That is exactly the columns mentioned before. Each row in the matrix is a position on the board. Therefore, there are $n^2$ rows. Thus, we can initialize the matrix for our exact cover problem.
 
 \subsubsection{Dancing links}\label{sec:dl}
-Because we need to This technque can make operation on the matrix cheap. All the columns and rows in the matrix are double-linked lists (see Figure~\ref{}.)
+Because in the backtracking process, we need to reverse the operations we did, the cost of recording and reversing operations must be inexpensive. In Donald's paper~\cite{knuth_dancing_2000}, he constructed double-linked lists to represent rows and columns in the matrix. Therefore, the cost of updating and reversing is cheap. Removing one element in a double-linked list can use these two operations: $L[R[x]]\leftarrow L[x]$ and $R[L[x]]\leftarrow R[x]$. Adding back the removed element only needs two very simple operations: $L[R[x]]\leftarrow x$ and $R[L[x]]\leftarrow x$.  Therefore, we can do the search by removing the elements in the matrix from top to bottom and left to right, while adding back them from bottom to top and right to left. This whole process make the double-linked list `dance' in the matrix, so it is called dancing links.
 
 \subsection{DLX with heuristic}
 
@@ -236,7 +236,7 @@ Because we need to This technque can make operation on the matrix cheap. All the
 
 \section{Future work}
 
-\section{Reference}
+
 \bibliography{report-ref}{}
 \bibliographystyle{acm}
 

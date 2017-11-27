@@ -38,3 +38,6 @@
 # For latex
 *.aux
 *.log
+*.bbl
+*.blg
+*.pdf
