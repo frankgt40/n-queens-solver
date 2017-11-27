@@ -176,7 +176,7 @@ In my implementation, there is a global array for the CSP, and it does the searc
 \subsection{Algorithm X}
 Backtracking is the good way of searching process, however because the representation of each node that the backtracking works on is not good enough, the depth as well as the number of branching of the search tree is very large. This will make the searching time longer, because there are too many nodes will be traversed.
 
-In this section, we will discuss another techquen that can reform the N-queens problem into \textbf{exact cover problem} ~\cite{noauthor_exact_2017} which can make the depth and branching number much smaller. Combining a very efficient search algorithm called \textbf{Alogrithm X}  in which another techque called \textbf{Dancing Links alorithm (DLX)} ~\cite{noauthor_knuths_2016}~\cite{knuth_dancing_2000} is used, the search tree is going to be much smaller. Here I am going to expain what the exact cover problem is, how we convert the N-queens problem to exact cover problem, and how the dancing links works in Algorithm X. Therefore, we can first convert our problem into Exact Cover problem and use Algorithm X to solve it fast.
+In this section, we will discuss another technque that can reform the N-queens problem into \textbf{exact cover problem} ~\cite{noauthor_exact_2017} which can make the depth and branching number much smaller. A very efficient search algorithm called \textbf{Alogrithm X}   shorted for DLX combined with another techque called \textbf{Dancing Links alorithm} ~\cite{noauthor_knuths_2016}~\cite{knuth_dancing_2000} is used, the search tree is going to be much smaller. Here I am going to expain what the exact cover problem is, how we convert the N-queens problem to exact cover problem, and how the dancing links works in Algorithm X. Therefore, we can first convert our problem into Exact Cover problem and use Algorithm X to solve it fast.
 
 \subsubsection{Exact cover problem}
 Exact cover problem is defined like this: given a set $X$, and a collection $S$ of $X$'s subsets, the goal is to find another collection $S^*$ in which every subset $y$ is in $S$ and dose not intersect with other subset, as well as the union of all the subset in $S^*$ is exactly set $X$. Here we use an example to explain it. Suppose $X={1,2,3,4,5,6}, S={A, B, C, D, E}, A={1,3}, B={2,4, 5}, C={1, 6}, D={3},E={1, 3, 6}$, then the $S^*$ should be $S^*={B, E}$. We can use the a matrix to represent this example (see Figure~\ref{fig:ecp}.)
@@ -198,11 +198,33 @@ Exact cover problem is defined like this: given a set $X$, and a collection $S$ 
   \label{fig:ecp}
 \end{figure}
 
-\subsubsection{Conver N-queens to exact cover problem}
-If we think about the array we mentioned in Section~\ref{sec:csp}, we can notice that each element of the array can only have one $1$. That is exactly the columns mentioned before. Each row in the matrix is a position on the board. Therefore, there are $n^2$ rows. Thus, we can initialize the matrix for our exact cover problem.
+The good way to solve exact cover problem  is to Algorithm X. It wil first count the number of $1$s in each column, and then pick the leftmost column with number of $1$s larger than zero. Then \textbf{cover} (see Figure ~\ref{fig:algorithmX}) this column and record this operation. After covering this column, the matrix's size is dramatically reduced (see Figure ~\ref{fig:algorithmX}). Then repeat this process recursively. If there is no columns with at least one $1$, then the search on this branch fails, and all the operations have been done have to be reversed (see Section~\ref{sec:dl}). The original algorithm X was introduced by Donald Knuth in his paper called \textit{Dancing links} ~\cite{knuth_dancing_2000}, and below is the algorithm we quote from that paper:
 
-\subsubsection{Dancing links}
-This technque can make operation on the matrix cheap. 
+\begin{quotation}
+  If $A$ is empty, the problem is solved; terminate successfully.
+  
+  Otherwise choose a column, $c$ (deterministically).
+  
+  Choose a row, $r$, such that $A[r, c] = 1$ (nondeterministically).
+  
+  Include $r$ in the partial solution.
+  
+  For each $j$ such that $A[r, j] = 1$,
+  
+  \indent \indent  delete column $j$ from matrix $A$;
+  
+  \indent \indent  for each $i$ such that $A[i, j] = 1$,
+  
+  \indent \indent \indent     delete row $i$ from matrix $A$.
+  
+  Repeat this algorithm recursively on the reduced matrix $A$.
+\end{quotation}
+
+\subsubsection{Conver N-queens to exact cover problem}
+If we think about the array we mentioned in Section~\ref{sec:csp} again, we can notice that each element of the array can only have one $1$. That is exactly the columns mentioned before. Each row in the matrix is a position on the board. Therefore, there are $n^2$ rows. Thus, we can initialize the matrix for our exact cover problem.
+
+\subsubsection{Dancing links}\label{sec:dl}
+Because we need to This technque can make operation on the matrix cheap. All the columns and rows in the matrix are double-linked lists (see Figure~\ref{}.)
 
 \subsection{DLX with heuristic}
 

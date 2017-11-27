@@ -34,3 +34,7 @@
 
 # Emacs auto saving files
 *~
+
+# For latex
+*.aux
+*.log
