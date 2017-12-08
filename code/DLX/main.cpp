@@ -166,18 +166,44 @@ public:
     Element* rDiag;
     for (int i = 1; i <= n; i++) {      // ranks
       for (int j = 1; j <= n; j++) {	// files
+	Header* c = getHeader("rank-"+to_string(i)); 
 	// for rank
 	rank = new Element();
-	rank->setC(getHeader("rank-"+to_string(i)));
+	rank->setC(c);
+		
+	rank->setU(c->u());
+	rank->setD(c);
+	rank->u()->setD(rank);
+	rank->d()->setU(rank);
+
 	// for file
+	c = getHeader("file-"+to_string(j));
 	file = new Element();
-	file->setC(getHeader("fiel-"+to_string(j)));
+	file->setC(c);
+	
+	file->setU(c->u());
+	file->setD(c);
+	file->u()->setD(file);
+	file->d()->setU(file);
 	// for pDiagonal
+	c = getHeader("pDiag-"+to_string(i+j-1));
 	pDiag = new Element();
-	pDiag->setC(getHeader("pDiag-"+to_string(i+j-1)));
+	pDiag->setC(c);
+
+	pDiag->setU(c->u());
+	pDiag->setD(c);
+	pDiag->u()->setD(pDiag);
+	pDiag->d()->setU(pDiag);
 	// for rDiagonal
+	c = getHeader("rDiag-"+to_string(n-i+j));
 	rDiag = new Element();
-	rDiag->setC(getHeader("rDiag-"+to_string(n-i+j)));
+	rDiag->setC(c);
+
+	rDiag->setU(c->u());
+	rDiag->setD(c);
+	rDiag->u()->setD(rDiag);
+	rDiag->d()->setU(rDiag);
+
 	// connect them to form a row
 	rank->setR(file);
 	rank->setL(rDiag);
