@@ -1,6 +1,8 @@
 #include <string>
 #include <iostream>
 using namespace std;
+extern class Header;
+
 class Node {
 protected:
   Node* up;
@@ -40,6 +42,10 @@ public:
   virtual bool isHeader() {
     return false;
   }
+  virtual Header* getC() {
+    return NULL;
+  }
+
 };
 
 class Header : public Node {
@@ -63,6 +69,10 @@ public :
   }
   int increase() {
     size++;
+    return size;
+  }
+  int decrease() {
+    size--;
     return size;
   }
   bool isRoot() {
@@ -267,12 +277,53 @@ public:
     }
     return (Header*)rsl;
   }
-  
+  inline void cover(Header* c) {
+    c->r()->setL(c->l()); c->l()->setR(c->r());
+    Node* n = c->d();
+    while (n!=c) {
+      Node* i = (Node*) n;
+      Node* j = i->r();
+      while (i != j) {
+	j->d()->setU(j->u()); j->u()->setD(j->d());
+	Header* hj = j->getC();
+	hj->decrease();
+	
+	j = j->r(); // next j
+      }
+      
+      n = n->d(); // next element i
+    }
+  }
+  inline void uncover(Header* c) {
+    Node* i = c->u();
+    while(i != c) {
+      Node* j = i->l();
+      while (j != i) {
+	j->getC()->increase();
+	j->d()->setU(j); j->u()->setD(j);
+	j = j->l(); // next j
+      }
+      i = i->u(); // next i
+    }
+  }
+
+  void search(int k=0) {
+    
+  }
 };
 
   
 int main() {
   Matrix m;
   m.genForNQueens(4);
+  std::cout << "Before covering:" << std::endl;
+  m.testPrint();
+  Header* f1 = m.getHeader("file-1");
+  m.cover(f1);
+  std::cout << "After convering:" << std::endl;
+  m.testPrint();
+
+  m.uncover(f1);
+  std::cout << "After unconvering:" << std::endl;
   m.testPrint();
 }
