@@ -8,6 +8,8 @@ protected:
   Node* left;
   Node* right;
 public:
+  Node(): up(this), down(this), left(this), right(this) {
+  }
   Node* u() {
     return up;
   }
@@ -33,6 +35,9 @@ public:
     down = d;
   }
   virtual bool isRoot() {
+    return false;
+  }
+  virtual bool isHeader() {
     return false;
   }
 };
@@ -63,6 +68,9 @@ public :
   bool isRoot() {
     return false;
   }
+  bool isHeader() {
+    return true;
+  }
   
 };
 
@@ -81,6 +89,10 @@ public:
   bool isRoot() {
     return false;
   }
+  bool isHeader() {
+    return false;
+  }
+  
 };
 
 class Root : public Header {
@@ -91,6 +103,10 @@ public:
   bool isRoot() {
     return true;
   }
+  bool isHeader() {
+    return false;
+  }
+
 };
 
 class Matrix {
@@ -98,6 +114,9 @@ private:
   Root* root;
 public:
   Matrix() {}
+  Root* getRoot() {
+    return root;
+  }
   void genForNQueens(int n) {
     root = new Root();
     Node* curr = NULL;
@@ -107,7 +126,7 @@ public:
     Header* header;
     for (int i = 1; i <= n; i++) {
       header = new Header();
-      header->setDescription("rank-"+i);
+      header->setDescription("rank-"+to_string(i));
       curr->setR(header);
       header->setL(curr);
       curr = header;
@@ -115,7 +134,7 @@ public:
     // for n files
     for (int i = 1; i <= n; i++) {
       header = new Header();
-      header->setDescription("file-"+i);
+      header->setDescription("file-"+to_string(i));
       curr->setR(header);
       header->setL(curr);
       curr = header;
@@ -123,7 +142,7 @@ public:
     // for represent diagonals
     for (int i =  1; i <= 2*n-1; i++) {
       header = new Header();
-      header->setDescription("pDiag-"+i);
+      header->setDescription("pDiag-"+to_string(i));
       curr->setR(header);
       header->setL(curr);
       curr = header;
@@ -131,7 +150,7 @@ public:
     // for reverse diagonals
     for (int i =  1; i <= 2*n-1; i++) {
       header = new Header();
-      header->setDescription("rDiag-"+i);
+      header->setDescription("rDiag-"+to_string(i));
       curr->setR(header);
       header->setL(curr);
       curr = header;
@@ -149,16 +168,16 @@ public:
       for (int j = 1; j <= n; j++) {	// files
 	// for rank
 	rank = new Element();
-	rank->setC(getHeader("rank-"+i));
+	rank->setC(getHeader("rank-"+to_string(i)));
 	// for file
 	file = new Element();
-	file->setC(getHeader("fiel-"+j));
+	file->setC(getHeader("fiel-"+to_string(j)));
 	// for pDiagonal
 	pDiag = new Element();
-	pDiag->setC(getHeader("pDiag-"+i+j-1));
+	pDiag->setC(getHeader("pDiag-"+to_string(i+j-1)));
 	// for rDiagonal
 	rDiag = new Element();
-	rDiag->setC(getHeader("rDiag-"+n-i+j));
+	rDiag->setC(getHeader("rDiag-"+to_string(n-i+j)));
 	// connect them to form a row
 	rank->setR(file);
 	rank->setL(rDiag);
@@ -173,7 +192,29 @@ public:
 	std::cout << endl;
       }
     }
-    std::cout << "Header rank3: " << getHeader("rank-3")->dscpt() << std::endl;
+    //    std::cout << "Header rank3: " << getHeader("rank-3")->dscpt() << std::endl;
+  }
+  void testPrint() {
+    Matrix m = *this;
+    Root* root = m.getRoot();
+    Node* currH = root->r();
+    while(!currH->isRoot()) {
+      // print the column
+      Header* h = (Header*)currH;
+      std::cout << h->dscpt() << ": ";
+      // print the elements of this column
+      Node* elm = h->d();
+      while (!elm->isHeader()) {
+	Element* e = (Element*) elm;
+	std::cout << "1,";
+	// next element
+	elm = elm->d(); 
+      }
+      std::cout << std::endl;
+      
+      // next column
+      currH = currH->r();
+    }
   }
   void testPrint(int i, int size) {
     for (int j = 1; j < i; j++) {
@@ -207,4 +248,5 @@ public:
 int main() {
   Matrix m;
   m.genForNQueens(4);
+  m.testPrint();
 }
