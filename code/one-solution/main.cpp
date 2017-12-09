@@ -139,11 +139,13 @@ int main(int ac, char* av[]) {
       long msec = dt.total_nanoseconds();
  
       //print elapsed seconds (with millisecond precision)
-      evalFile << i <<  ", " <<  msec << std::endl;
+      evalFile << i <<  ", " <<  msec << "\n";
 
       // sleep for a while to avoid killed by kernel
-      if (i % 100000 == 0)
+      if (i % 100000 == 0) {
+	evalFile << std::flush;
 	usleep(1000);
+      }
     }
     evalFile.close();
     return 0;
