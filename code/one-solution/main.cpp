@@ -1,7 +1,6 @@
 #include <boost/program_options.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/chrono.hpp>
-#include <boost/thread/thread.hpp> 
+#include <unistd.h>
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -141,8 +140,9 @@ int main(int ac, char* av[]) {
  
       //print elapsed seconds (with millisecond precision)
       evalFile << i <<  ", " <<  msec << std::endl;
-      boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
- 
+
+      // sleep for a while to avoid killed by kernel
+      usleep(10);
     }
     evalFile.close();
     return 0;
