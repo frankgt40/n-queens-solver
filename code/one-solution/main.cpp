@@ -142,7 +142,8 @@ int main(int ac, char* av[]) {
       evalFile << i <<  ", " <<  msec << std::endl;
 
       // sleep for a while to avoid killed by kernel
-      usleep(10);
+      if (i % 100000)
+	usleep(1000);
     }
     evalFile.close();
     return 0;
