@@ -143,7 +143,7 @@ int main(int ac, char* av[]) {
       evalFile << i <<  ", " <<  msec << "\n";
 
       // sleep for a while to avoid killed by kernel
-      if (i % 10000 == 0) {
+      if (i == 100000 || i == 200000 || i == 300000|| i == 400000 || i == 500000 || i == 600000 || i == 700000|| i == 800000|| i == 900000) {
 	evalFile << std::flush;
 	std::cout << "Finished: " << i << " questions, " << i*1.0 / maxN*1.0 << "\%" << std::endl;
 	usleep(1000);
