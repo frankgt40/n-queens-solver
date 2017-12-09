@@ -135,6 +135,7 @@ int main(int ac, char* av[]) {
       vector<int>* rsl = o.compute(i); // compute a solution
       Time t2(boost::posix_time::microsec_clock::local_time());
       TimeDuration dt = t2 - t1;
+      delete rsl;
       //number of elapsed miliseconds
       long msec = dt.total_nanoseconds();
  
