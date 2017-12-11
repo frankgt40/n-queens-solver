@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 using namespace std;
-extern class Header;
+//extern class Header;
 
 class Node {
 protected:
