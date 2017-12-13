@@ -1,7 +1,15 @@
-#include <string>
+#include <boost/program_options.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <unistd.h>
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+namespace po = boost::program_options;
+typedef boost::posix_time::ptime Time;
+typedef boost::posix_time::time_duration TimeDuration;
 using namespace std;
-//extern class Header;
+class Header;
 
 class Node {
 protected:
@@ -50,30 +58,37 @@ public:
 
 class Header : public Node {
 private:
-  int size;
+  int _size;
   string description;
 public :
-  Header() : size(0), description("") {
+  bool optional;
+  int id;
+  bool isRank;
+  Header() : _size(0), description(""), id(-1), isRank(false) {
   }
-  int sizeg() {
-    return this->size;
+  int size() {
+    return this->_size;
   }
   string dscpt() {
     return description;
   }
   void setSize(int s) {
-    size = s;
+    if (_size == 0) {
+      this->r()->setL(this->l());
+      this->l()->setR(this->r());
+    }
+    _size = s;
   }
   void setDescription(string s) {
     description = s;
   }
   int increase() {
-    size++;
-    return size;
+    _size++;
+    return _size;
   }
   int decrease() {
-    size--;
-    return size;
+    _size--;
+    return _size;
   }
   bool isRoot() {
     return false;
@@ -122,12 +137,19 @@ public:
 class Matrix {
 private:
   Root* root;
+  vector<int*>* rsl;
+  vector<Node*>* O;
+  int n;
 public:
   Matrix() {}
   Root* getRoot() {
     return root;
   }
   void genForNQueens(int n) {
+    rsl = new vector<int*>();
+    O = new vector<Node*>(n, NULL);
+    this->n = n;
+    
     root = new Root();
     Node* curr = NULL;
     curr = root;
@@ -137,6 +159,9 @@ public:
     for (int i = 1; i <= n; i++) {
       header = new Header();
       header->setDescription("rank-"+to_string(i));
+      header->optional = false;
+      header->id = i;
+      header->isRank = true;
       curr->setR(header);
       header->setL(curr);
       curr = header;
@@ -145,6 +170,9 @@ public:
     for (int i = 1; i <= n; i++) {
       header = new Header();
       header->setDescription("file-"+to_string(i));
+      header->optional = false;
+      header->id = i;
+      header->isRank = false;
       curr->setR(header);
       header->setL(curr);
       curr = header;
@@ -153,6 +181,7 @@ public:
     for (int i =  1; i <= 2*n-1; i++) {
       header = new Header();
       header->setDescription("pDiag-"+to_string(i));
+      header->optional = true;      
       curr->setR(header);
       header->setL(curr);
       curr = header;
@@ -161,6 +190,7 @@ public:
     for (int i =  1; i <= 2*n-1; i++) {
       header = new Header();
       header->setDescription("rDiag-"+to_string(i));
+      header->optional = true;            
       curr->setR(header);
       header->setL(curr);
       curr = header;
@@ -185,7 +215,7 @@ public:
 	rank->setD(c);
 	rank->u()->setD(rank);
 	rank->d()->setU(rank);
-
+	c->increase();
 	// for file
 	c = getHeader("file-"+to_string(j));
 	file = new Element();
@@ -195,6 +225,7 @@ public:
 	file->setD(c);
 	file->u()->setD(file);
 	file->d()->setU(file);
+	c->increase();
 	// for pDiagonal
 	c = getHeader("pDiag-"+to_string(i+j-1));
 	pDiag = new Element();
@@ -204,6 +235,7 @@ public:
 	pDiag->setD(c);
 	pDiag->u()->setD(pDiag);
 	pDiag->d()->setU(pDiag);
+	c->increase();
 	// for rDiagonal
 	c = getHeader("rDiag-"+to_string(n-i+j));
 	rDiag = new Element();
@@ -213,6 +245,7 @@ public:
 	rDiag->setD(c);
 	rDiag->u()->setD(rDiag);
 	rDiag->d()->setU(rDiag);
+	c->increase();
 
 	// connect them to form a row
 	rank->setR(file);
@@ -223,28 +256,42 @@ public:
 	pDiag->setL(file);
 	rDiag->setR(rank);
 	rDiag->setL(pDiag);
-	// debug
-	testPrint(i, n);testPrint(j, n);testPrint(i+j-1, 2*n-1); testPrint(n-i+j, 2*n-1);
-	std::cout << endl;
       }
     }
-    //    std::cout << "Header rank3: " << getHeader("rank-3")->dscpt() << std::endl;
+    manuOptionalColumns();
   }
+  void manuOptionalColumns() {
+    int i = 0;
+    Header* lastOne = NULL;
+    Header* optional = NULL;
+    for (Header* h = (Header*)root->r(); h != root;  i++) {
+      if (i == 2*n-1) {
+	//	cout << endl << "Last one: " << h->dscpt() << endl;
+	lastOne = h;
+      }
+      if (i > 2*n-1) {
+	optional = h;
+      }
+      h = (Header*)h->r();
+      if (i > 2*n-1) {
+	optional->setR(optional);
+	optional->setL(optional);
+      }
+    }
+    root->setL(lastOne);
+    lastOne->setR(root);
+  }
+  
   void testPrint() {
-    Matrix m = *this;
-    Root* root = m.getRoot();
-    Node* currH = root->r();
-    while(!currH->isRoot()) {
+    Node* currH = (Node*)root->r();
+    while(currH != root) {
       // print the column
       Header* h = (Header*)currH;
-      std::cout << h->dscpt() << ": ";
+      std::cout << h->dscpt() << " [size=" << h->size()<<"] : ";
       // print the elements of this column
-      Node* elm = h->d();
-      while (!elm->isHeader()) {
+      for (Node* elm = h->d(); elm != h; elm = elm->d()) {
 	Element* e = (Element*) elm;
 	std::cout << "1,";
-	// next element
-	elm = elm->d(); 
       }
       std::cout << std::endl;
       
@@ -279,51 +326,179 @@ public:
   }
   inline void cover(Header* c) {
     c->r()->setL(c->l()); c->l()->setR(c->r());
-    Node* n = c->d();
-    while (n!=c) {
-      Node* i = (Node*) n;
-      Node* j = i->r();
-      while (i != j) {
+    for (Node* i = c->d(); i != c; i = i->d()) {
+      for (Node* j = i->r(); i != j; j = j->r()) {
 	j->d()->setU(j->u()); j->u()->setD(j->d());
-	Header* hj = j->getC();
-	hj->decrease();
-	
-	j = j->r(); // next j
+	j->getC()->decrease();
       }
-      
-      n = n->d(); // next element i
     }
   }
   inline void uncover(Header* c) {
-    Node* i = c->u();
-    while(i != c) {
-      Node* j = i->l();
-      while (j != i) {
-	j->getC()->increase();
+    for (Node* i = c->u(); i != c; i = i->u()) {
+      for (Node* j = i->l(); j != i; j = j->l()) {
 	j->d()->setU(j); j->u()->setD(j);
-	j = j->l(); // next j
+	j->getC()->increase();
       }
-      i = i->u(); // next i
     }
+    c->r()->setL(c); c->l()->setR(c);
   }
 
-  void search(int k=0) {
-    
+  void testPrintHeader() {
+    for (Header* h = (Header*)root->r(); h != root; h = (Header*)h->r()) {
+      cout << h->dscpt() << "->";
+    }
+    cout << endl;
+  }
+  Header* chooseColumn() {
+    // based on smallest first heuristic
+    Node* h = NULL;
+    Header* rsl = (Header*)((Node*)root->r());
+    int minSize = ((Header*)((Node*)root->r()))->size();
+    for (h = (Node*)root->r(); h != root && ((Header*)h)->dscpt().find("Diag-") != string::npos; h = h->r()) {
+      int size = ((Header*)h)->size();
+      if (size < minSize && size != 0) {
+	minSize = size;
+	rsl = (Header*)h;
+      } else if (minSize == 0) {
+	minSize = size;
+      }
+    }
+    if (minSize == 0) return NULL;
+    return rsl;
+  }
+
+  void search(int k) {
+    if (root->r() == root) {
+      // print current solution, and return;
+      int* tmp = new int[n];
+      for (vector<Node*>::iterator itr = O->begin();
+       	   itr != O->end(); itr++) {
+	int rank = ((Element*)(*itr))->getC()->id;
+	int file = ((Element*)(*itr))->r()->getC()->id;
+	tmp[rank-1] = file;
+      }
+      rsl->push_back(tmp);
+    } else {
+      // choose a column: use heuristic
+      Header* c = chooseColumn();
+      if (c == NULL)
+      	return;
+	
+      /////////////////Modifications//////////////////
+      cover(c);
+      for (Node* r = c->d(); r != c; r = r->d()) {
+	O->at(k) = r;
+	//Node* ok = r;
+	for (Node* j = r->r(); j != r; j = j->r()) {
+	  Header* h = ((Element*)j)->getC();
+	  cover(h);
+	}
+	search(k+1);
+	r = O->at(k);
+	//r = ok;
+	c = ((Element*)r)->getC();
+	for (Node* j = r->l(); j != r; j = j->l()) {
+	  Header* h = ((Element*)j)->getC();
+	  uncover(h);
+	}
+      }
+      uncover(c);
+      /////////////////Modifications//////////////////      
+    }
+  }
+  void erase() {
+    delete root;
+  }
+  vector<int*>* getRsl() {
+    return rsl;
   }
 };
 
-  
-int main() {
-  Matrix m;
-  m.genForNQueens(4);
-  std::cout << "Before covering:" << std::endl;
-  m.testPrint();
-  Header* f1 = m.getHeader("file-1");
-  m.cover(f1);
-  std::cout << "After convering:" << std::endl;
-  m.testPrint();
 
-  m.uncover(f1);
-  std::cout << "After unconvering:" << std::endl;
-  m.testPrint();
+
+int main(int ac, char* av[]) {
+  int maxN = 27; // number of queens
+  bool printSolutions = false;
+  bool eval = false;
+  try {
+    po::options_description desc("Opions of n-queens solver");
+    desc.add_options()
+      ("help", "print all the available options")
+      ("maxN", po::value<int>(), "maximum number of queens (default is 27)")
+      ("print", "print the solutions (default is false)")
+      ("eval", "evaluate the running time for generating graph, without outputing the solutions (default is false)")
+      ;
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(ac, av, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+      std::cout << desc << std::endl;
+      return 0;
+    }
+    if (vm.count("print")) {
+      printSolutions = true;
+    }
+    if (vm.count("maxN")) {
+      maxN = vm["maxN"].as<int>();
+      std::cout << "maxium number of queens: " << maxN << "." << std::endl;
+    }  else {
+      std::cout << "[Warning] No maxium number of queens specified. Use 27." << std::endl;
+    }
+    if (vm.count("eval")) {
+      std::cout << "Evaluatiion model." << std::endl;
+      eval = true;
+    }
+  } catch (std::exception& e) {
+    std::cerr << "error: " << e.what() << std::endl;
+    return -1;
+  } catch (...) {
+    std::cerr << "Unknown exception!" << std::endl;
+    return -1;
+  }
+
+  if ( eval) {
+    ofstream evalFile;
+    ofstream soluFile;
+    ofstream soluNumFile;
+    evalFile.open("eval.txt");
+    if (printSolutions) soluFile.open("solutions.txt");
+    soluNumFile.open("solutionNumber.txt");
+    for (int i = 4; i <= maxN; i++) {
+      Time t1(boost::posix_time::microsec_clock::local_time());
+      Matrix m;
+      m.genForNQueens(i);
+      m.search(0);
+      Time t2(boost::posix_time::microsec_clock::local_time());
+      TimeDuration dt = t2 - t1;
+
+      //number of elapsed miliseconds
+      long msec = dt.total_nanoseconds();
+      
+      vector<int*>* rsl = m.getRsl();
+      //print elapsed seconds (with millisecond precision)
+      evalFile << i <<  ", " <<  msec << endl;
+      int soluSize = rsl->size();
+      soluNumFile << i << ", "<< soluSize << endl;
+      if (printSolutions) {
+	soluFile << "N=" << i << ":" << endl;
+	for (vector<int*>::iterator itr = rsl->begin(); itr != rsl->end(); itr++) {
+	  soluFile << "One solution: ";
+	  for (int j = 0; j < i;  j++) {
+	    soluFile << "(" << j+1 <<"," << (*itr)[j] << "), ";
+	  }
+	  soluFile << endl;
+	}
+      }
+      m.erase();
+      delete rsl;
+    }
+    evalFile.close();
+    if (printSolutions) soluFile.close();
+    soluNumFile.close();
+      
+  }
+  cout << endl << "Finished!" << endl;
+  return 0;
 }
