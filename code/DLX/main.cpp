@@ -424,7 +424,7 @@ int main(int ac, char* av[]) {
     po::options_description desc("Opions of n-queens solver");
     desc.add_options()
       ("help", "print all the available options")
-      ("maxN", po::value<int>(), "maximum number of queens (default is 27)")
+      ("maxN", po::value<int>(), "maximum number of queens (default is 17)")
       ("print", "print the solutions (default is false)")
       ("eval", "evaluate the running time for generating graph, without outputing the solutions (default is false)")
       ;
