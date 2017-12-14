@@ -159,7 +159,10 @@ In this report, my goal is to find the existing most efficient (in terms of time
 \subsection{Naive algorithm}
 The naive way of solving N-queens puzzle is to enumerate all the possible configurations to find the right ones. This indeed is time as well as memory consuming when $n$ increase. One simple way of optimization is, instead of generating all the configurations, only gernerating the configurations that for each column or each row there is only one queen. Still the time of finishing the whole process is going to be unacceptable.
 
-\subsection{Backtracking with CSP}\label{sec:csp}
+\subsection{Explicit method for finding one solution}
+There are a lot of existing works for finding one solution of N--Queens puzzl by using search algorithms. However, we don't need to do that and most of those algorithms are non--deterministic. There is a explicit formula for computing one solution and the time complexity is only $O(1)$ \cite{bernhardsson_explicit_1991}. The formula is: 1.If $n$ is even but not in the form of  $n = 6k + 2$, then place $(j, 2j)$ and $(n/2+j, 2j-1)$ on the board, $j = 1,…,n/2$ 2.If $n$ is even but not in the form of $n = 6k$ then place $(j, 1+[2(j-1)+n/2-1 mod n])$ and $(n+1-j, n - [2(j-1)+n/2-1 mod n])$ on the board, $j = 1,…, n/2$ 3.If $n$ is odd, choose (1) or (2) and then add a another pair $(n,n)$.
+
+\subsection{Backtracking with CSP (Bitmask)}\label{sec:csp}
 In stead of generating all the configurations and then iterate over them to find the valid answers, we put a new queen onto the current board and check whether it will attack the existing queens that are already on the board. If it is yes, then we take that queen off and try another position. If it is no, we leave the queen in that position and pick another queen that is not on board currently as the new queen and repeat the process. Another thing we need to do is to remember all the actions we did, and if we found that there is no positions allow a new queen to be placed in, then it is time to reverse the previous process, i.e. take off the last placed queen before the current one, and then try to place it somewhere else. This process essentially is doing the depth first search on a tree. Each node on the tree is a configuration and the edges are the actions taken on the parent node and the child nodes are the result. The search process is called backtracking ~\cite{russell_modern_1995}, since it will search down and if it find a unrealized path it will backtrack to the parent nodes. Figure ~\ref{fig:backtrack4Queens} is an example of backtracking on the 4-queens puzzle.
 \begin{figure}[ht]
   \centering
@@ -198,7 +201,7 @@ Exact cover problem is defined like this: given a set $X$, and a collection $S$ 
   \label{fig:ecp}
 \end{figure}
 
-The good way to solve exact cover problem  is to Algorithm X. It wil first count the number of $1$s in each column, and then pick the leftmost column with number of $1$s larger than zero. Then \textbf{cover} (see Figure ~\ref{fig:algorithmX}) this column and record this operation. After covering this column, the matrix's size is dramatically reduced (see Figure ~\ref{fig:algorithmX}). Then repeat this process recursively. If there is no columns with at least one $1$, then the search on this branch fails, and all the operations have been done have to be reversed (see Section~\ref{sec:dl}). The original algorithm X was introduced by Donald Knuth in his paper called \textit{Dancing links} ~\cite{knuth_dancing_2000}, and below is the algorithm we quote from that paper:
+The good way to solve exact cover problem  is to Algorithm X. It wil first count the number of $1$s in each column, and then pick the leftmost column with number of $1$s larger than zero. Then \textbf{cover} this column and record this operation. After covering this column, the matrix's size is dramatically reduced . Then repeat this process recursively. If there is no columns with at least one $1$, then the search on this branch fails, and all the operations have been done have to be reversed (see Section~\ref{sec:dl}). The original algorithm X was introduced by Donald Knuth in his paper called \textit{Dancing links} ~\cite{knuth_dancing_2000}, and below is the algorithm we quote from that paper:
 
 \begin{quotation}
   If $A$ is empty, the problem is solved; terminate successfully.
@@ -227,15 +230,42 @@ If we think about the array we mentioned in Section~\ref{sec:csp} again, we can 
 Because in the backtracking process, we need to reverse the operations we did, the cost of recording and reversing operations must be inexpensive. In Donald's paper~\cite{knuth_dancing_2000}, he constructed double-linked lists to represent rows and columns in the matrix. Therefore, the cost of updating and reversing is cheap. Removing one element in a double-linked list can use these two operations: $L[R[x]]\leftarrow L[x]$ and $R[L[x]]\leftarrow R[x]$. Adding back the removed element only needs two very simple operations: $L[R[x]]\leftarrow x$ and $R[L[x]]\leftarrow x$.  Therefore, we can do the search by removing the elements in the matrix from top to bottom and left to right, while adding back them from bottom to top and right to left. This whole process make the double-linked list `dance' in the matrix, so it is called dancing links.
 
 \subsection{DLX with heuristic}
+The way how we choose to cover the column is very important for DLX's performance. We used to choose the one with the least 1's.  However, there may be a better heuristic: `organ pipe ordering', which is shown is Figure~\ref{fig:organPipe}.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figure/organPipe.jpg}
+  \caption{`Organ pipe ordering': a better heuristic discussed in Knuth's paper and this figure is modified based on the one in his paper}
+  \label{fig:organPipe}
+\end{figure}
 
-\subsection{Other algorithms}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figure/explicit_solution.png}
+  \caption{Explicit solution for N-Queens puzzle.}
+  \label{fig:one_solution}
+\end{figure}
 
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figure/csp_dlx.png}
+  \caption{DLX VS Bitmask.}
+  \label{fig:dlxVSBitmask}
+\end{figure}
 \section{Evaluation}
+I evaluated my work in two categories: the first one is for finding one solution and the second one is for finding all the solutions. I used the formula mentioned before to find one solution, and this method is deteministic and complete, meaning each time it is garanteed to produced a right answer. In addition, it is fast. It can give me an answer in around \textbf{$0.003$ seconds} when \textbf{$n$ equals to $1$ million}! The result is shown in Figure~\ref{fig:one_solution}.
+
+
+When finding all the solutions, I implemented the DLX algorithm and modified the code of using Bitmask~\cite{noauthor_accepted_2015}. Finally compare these two methods, and the result is shown in Figure~\ref{fig:dlxVSBitmask}. These two algorithms are both good, but when $n$ increase to $14$ DLX is faster than backtracking with bitmask.
+
+
 
 \section{Conclusion}
+In colusion, if we just need to find one solution of N-Queens puzzle then we can just use the formular to compute the solution. It is fast and garantee to produce a correct answer. However, if we want to find all the solutions the problem becomes NP-complete and using DLX is the better way to do so.
 
 \section{Future work}
+In the future, I may try to implement the `organ pipe ordering' heuristic and use distributed systems to produce the results faster.
 
+\pagebreak
 
 \bibliography{report-ref}{}
 \bibliographystyle{acm}
